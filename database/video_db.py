@@ -266,10 +266,7 @@ class VideoDatabase:
             return {}
 
         if not PathAndFilename:
-            if MovieData[16].endswith('|redirect-limit=1000&failonerror=false'):
-                PathAndFilename = f"{MovieData[16].replace('|redirect-limit=1000&failonerror=false', '')}{MovieData[27]}|redirect-limit=1000&failonerror=false"
-            else:
-                PathAndFilename = f"{MovieData[16]}{MovieData[27]}"
+            PathAndFilename = f"{MovieData[16]}{MovieData[27]}"
 
         Artwork = self.get_artwork(KodiItemId, "movie", "")
         People = self.get_people_artwork(KodiItemId, "movie")
@@ -338,10 +335,7 @@ class VideoDatabase:
             return {}
 
         if not PathAndFilename:
-            if MusicVideoData[11].endswith('|redirect-limit=1000&failonerror=false'):
-                PathAndFilename = f"{MusicVideoData[11].replace('|redirect-limit=1000&failonerror=false', '')}{MusicVideoData[12]}|redirect-limit=1000&failonerror=false"
-            else:
-                PathAndFilename = f"{MusicVideoData[11]}{MusicVideoData[12]}"
+            PathAndFilename = f"{MusicVideoData[11]}{MusicVideoData[12]}"
 
         Artwork = self.get_artwork(KodiItemId, "musicvideo", "")
         People = self.get_people_artwork(KodiItemId, "musicvideo")
@@ -801,10 +795,7 @@ class VideoDatabase:
             return {}
 
         if not PathAndFilename:
-            if EpisodeData[17].endswith('|redirect-limit=1000&failonerror=false'):
-                PathAndFilename = f"{EpisodeData[17].replace('|redirect-limit=1000&failonerror=false', '')}{EpisodeData[19]}|redirect-limit=1000&failonerror=false"
-            else:
-                PathAndFilename = f"{EpisodeData[17]}{EpisodeData[19]}"
+            PathAndFilename = f"{EpisodeData[17]}{EpisodeData[19]}"
 
         People = self.get_people_artwork(KodiItemId, "episode")
         People += self.get_people_artwork(EpisodeData[29], "tvshow")

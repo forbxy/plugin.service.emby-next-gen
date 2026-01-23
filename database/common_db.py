@@ -83,17 +83,17 @@ class CommonDatabase:
 def toggle_path(CurrentPath, NewPath):
     if NewPath == "http://127.0.0.1:57342/":
         if CurrentPath.startswith("/emby_addon_mode/"):
-            return f'{CurrentPath.replace("/emby_addon_mode/", "http://127.0.0.1:57342/")}|redirect-limit=1000&failonerror=false'
+            return f'{CurrentPath.replace("/emby_addon_mode/", "http://127.0.0.1:57342/")}'
 
         return CurrentPath.replace("dav://127.0.0.1:57342/", "http://127.0.0.1:57342/")
 
     if NewPath == "/emby_addon_mode/":
         if CurrentPath.startswith("http://127.0.0.1:57342/"):
-            return CurrentPath.replace("http://127.0.0.1:57342/", "/emby_addon_mode/").replace("|redirect-limit=1000&failonerror=false", "")
+            return CurrentPath.replace("http://127.0.0.1:57342/", "/emby_addon_mode/")
 
-        return CurrentPath.replace("dav://127.0.0.1:57342/", "/emby_addon_mode/").replace("|redirect-limit=1000&failonerror=false", "")
+        return CurrentPath.replace("dav://127.0.0.1:57342/", "/emby_addon_mode/")
     # if NewPath == "dav://127.0.0.1:57342/":
     if CurrentPath.startswith("/emby_addon_mode/"):
-        return f'{CurrentPath.replace("/emby_addon_mode/", "dav://127.0.0.1:57342/")}|redirect-limit=1000&failonerror=false'
+        return f'{CurrentPath.replace("/emby_addon_mode/", "dav://127.0.0.1:57342/")}'
 
     return CurrentPath.replace("http://127.0.0.1:57342/", "dav://127.0.0.1:57342/")

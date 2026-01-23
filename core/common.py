@@ -471,20 +471,10 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
 
     Item['KodiFullPath'] = f"{Item['KodiPath']}{Item['KodiFilename']}"
 
-    if (Item['KodiPath'].startswith("http://127.0.0.1:57342/") or Item['KodiPath'].startswith("dav://127.0.0.1:57342/")) and Item['Type'] != "Audio":
-        Item['KodiFullPath'] += "|redirect-limit=1000&failonerror=false"
-        Item['KodiPath'] += "|redirect-limit=1000&failonerror=false"
 
-        if 'KodiPathParent' in Item:
-            Item['KodiPathParent'] += "|redirect-limit=1000&failonerror=false"
 
     if isHttpByEmby and utils.followhttp:
         Item['KodiPath'] = Item['KodiPath'].replace("/emby_addon_mode/", "http://127.0.0.1:57342/").replace("dav://127.0.0.1:57342/", "http://127.0.0.1:57342/")
-        Item['KodiFullPath'] += f"|redirect-limit=1000&failonerror=false&connection-timeout={utils.followhttptimeout}"
-        Item['KodiPath'] += f"|redirect-limit=1000&failonerror=false&connection-timeout={utils.followhttptimeout}"
-
-        if 'KodiPathParent' in Item:
-            Item['KodiPathParent'] += f"|redirect-limit=1000&failonerror=false&connection-timeout={utils.followhttptimeout}"
 
 # Detect Multipart videos
 def set_multipart(Item, EmbyServer):
@@ -936,7 +926,6 @@ def load_chapter(MediaSource, Chapter, Index, ServerId, ItemId):
             ChapterImage = f"http://127.0.0.1:57342/picture/{ServerId}/p-{Id}-{Index}-c-{Chapter['ImageTag']}-{quote(Chapter['Name'])}"
         else:
             ChapterImage = f"http://127.0.0.1:57342/picture/{ServerId}/p-{Id}-{Index}-c-noimage-{quote(Chapter['Name'])}"
-
     if Chapter["StartPositionTicks"] not in MediaSource['KodiChapters']:
         MediaSource['KodiChapters'][Chapter["StartPositionTicks"]] = ChapterImage
     else:

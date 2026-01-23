@@ -230,7 +230,7 @@ def advanced_settings():
         SectionMain += '\n    <pathsubstitution>'
         SectionMain += '\n        <substitute>'
         SectionMain += '\n            <from>/emby_addon_mode/</from>'
-        SectionMain += '\n            <to>http://127.0.0.1:57342/|redirect-limit=1000</to>'
+        SectionMain += '\n            <to>http://127.0.0.1:57342/|</to>'
         SectionMain += '\n        </substitute>'
         SectionMain += '\n    </pathsubstitution>'
         Changed = True
@@ -238,13 +238,13 @@ def advanced_settings():
         if '<from>/emby_addon_mode/</from>' not in SectionData:
             SectionData += '\n        <substitute>'
             SectionData += '\n            <from>/emby_addon_mode/</from>'
-            SectionData += '\n            <to>http://127.0.0.1:57342/|redirect-limit=1000</to>'
+            SectionData += '\n            <to>http://127.0.0.1:57342/</to>'
             SectionData += '\n        </substitute>'
             SectionMain = replace_Section("pathsubstitution", SectionData, SectionMain)
             Changed = True
-        elif '<to>http://127.0.0.1:57342/|redirect-limit=1000</to>' not in SectionData:
-            SectionMain = SectionMain.replace("<to>http://127.0.0.1:57342/</to>", "<to>http://127.0.0.1:57342/|redirect-limit=1000</to>")
-            Changed = True
+        # elif '<to>http://127.0.0.1:57342/</to>' not in SectionData:
+        #     SectionMain = SectionMain.replace("<to>http://127.0.0.1:57342/</to>", "<to>http://127.0.0.1:57342/</to>")
+        #     Changed = True
 
     SectionData = get_Section(SectionMain, "video")
 

@@ -48,7 +48,7 @@ def update_Artwork(KodiId, KodiType, SQLs, Add):
             UrlMod = ArtworkData[2].split("|")
 
             if Add:
-                UrlMod = f"{UrlMod[0].replace('-download', '')}-download|redirect-limit=1000&failonerror=false"
+                UrlMod = f"{UrlMod[0]}"
             else:
                 UrlMod = ArtworkData[2].replace("-download", "")
 

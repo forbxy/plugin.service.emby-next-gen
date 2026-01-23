@@ -711,7 +711,7 @@ class HTTP:
                             for ArtworkData in ArtworksData:
                                 if ArtworkData[1] in ("poster", "thumb", "landscape"):
                                     UrlMod = ArtworkData[2].split("|")
-                                    UrlMod = f"{UrlMod[0].replace('-download', '')}-download|redirect-limit=1000&failonerror=false"
+                                    UrlMod = f"{UrlMod[0].replace('-download', '')}-download"
                                     SQLs['video'].update_artwork(ArtworkData[0], UrlMod)
                                     Artworks += ((UrlMod,),)
 

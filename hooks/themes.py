@@ -150,7 +150,7 @@ def PlaybackStart(PlayKodiType, PlayKodiId):
             if not ContentKodiData[2]: # Runtime not set
                 continue
 
-            ContentPath = ContentKodiData[1].replace("http://127.0.0.1:57342", "").replace("dav://127.0.0.1:57342", "").replace("/emby_addon_mode", "").replace("|redirect-limit=1000&failonerror=false", "")
+            ContentPath = ContentKodiData[1].replace("http://127.0.0.1:57342", "").replace("dav://127.0.0.1:57342", "").replace("/emby_addon_mode", "")
             KodiContentId = ContentKodiData[0]
             Runtime = round(float(ContentKodiData[2]))
             ContentMetadata = metadata.load_MetaData(ContentPath, False, False)

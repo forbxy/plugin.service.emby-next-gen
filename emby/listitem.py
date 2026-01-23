@@ -932,7 +932,7 @@ def get_MimeType(Path):
     if not Path:
         return ""
 
-    p = Path.lower().replace("|redirect-limit=1000&failonerror=false", "")
+    p = Path.lower()
 
     if p.endswith(".mp4") or p.endswith(".m4v"):
         return "video/mp4"

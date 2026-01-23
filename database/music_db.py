@@ -462,7 +462,7 @@ class MusicDatabase:
                     FileNameNew = FileName
 
             Path = f'{"/".join(Data[:-1])}/{FileNameNew}'
-            Path = common_db.toggle_path(Path, NewPath).replace("|redirect-limit=1000&failonerror=false", "")
+            Path = common_db.toggle_path(Path, NewPath)
             SQLData += ((Path, VideoURL[0]),)
 
         if SQLData:

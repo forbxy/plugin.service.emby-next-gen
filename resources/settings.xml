@@ -106,6 +106,11 @@
                     </constraints>
                     <control type="spinner" format="string"/>
                 </setting>
+                <setting id="strm_ext_from_url" type="boolean" label="50801" help="50802">
+                    <level>2</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="ArtworkCacheIncremental" label="33728" type="boolean" help="33729">
                     <level>2</level>
                     <default>false</default>
@@ -702,16 +707,16 @@
                 </setting>
                 <setting label="33712" id="followhttp" type="boolean" help="33713">
                     <level>2</level>
-                    <default>false</default>
+                    <default>true</default>
                     <control type="toggle"/>
                 </setting>
                 <setting id="followhttptimeout" type="integer" label="33714" help="">
                     <level>2</level>
-                    <default>5</default>
+                    <default>15</default>
                     <constraints>
                         <minimum>0</minimum>
                         <step>1</step>
-                        <maximum>15</maximum>
+                        <maximum>30</maximum>
                     </constraints>
                     <control type="slider" format="integer">
                         <popup>false</popup>

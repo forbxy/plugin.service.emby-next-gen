@@ -1,6 +1,8 @@
 import os
+import json
 import base64
-from urllib.parse import quote
+from urllib.parse import quote, unquote, urlparse, parse_qs
+from urllib.request import Request, urlopen
 import xbmc
 from helper import utils, artworkcache
 EmbyTypeMappingShort = {"Movie": "m", "Episode": "e", "MusicVideo": "M", "Audio": "a", "Video": "v", "TvChannel": "t", "Trailer": "T"}
@@ -277,19 +279,111 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
         Item['KodiFilename'] = "unknown"
         NativeMode = False
 
-    if Container == 'iso' or KodiPathLower.endswith(".iso"):
-        NativeMode = True
-    elif KodiPathLower.startswith("dav://") or KodiPathLower.startswith("davs://"):
-        NativeMode = True
-    elif KodiPathLower.startswith("http://") or KodiPathLower.startswith("https://"):
+    
+    if KodiPathLower.startswith("http://") or KodiPathLower.startswith("https://"):
+        # xbmc.log(f"DEBUG_EMBY: Item={json.dumps(Item, indent=2)}", xbmc.LOGDEBUG)
+        # xbmc.log(f"DEBUG_EMBY: ServerId={str(ServerId)}", xbmc.LOGDEBUG)
+        # xbmc.log(f"DEBUG_EMBY: MediaSource={str(MediaSource)}", xbmc.LOGDEBUG)
+        # xbmc.log(f"DEBUG_EMBY: isDynamic={str(isDynamic)}", xbmc.LOGDEBUG)
         NativeMode = False
         Dynamic += "http/"
         isHttpByEmby = True
-
         if 'Container' in Item:
             Item['KodiFilename'] = f"unknown.{Item['Container']}"
         else:
-            Item['KodiFilename'] = "unknown"
+            # Only execute specialized extension detection if the MediaSource container is explicitly 'strm'
+            should_probe = False
+            if 'MediaSources' in Item and Item['MediaSources']:
+                ms = Item['MediaSources'][0]
+                if ms.get('Container', '').lower() == 'strm':
+                    should_probe = True
+
+            found_ext = None
+            
+            if should_probe:
+                # Try to extract valid extension from URL or Path
+                valid_exts = {'mkv', 'iso', 'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm2ts', 'ts', 'bdmv', 'ifo', '3gp', 'rmvb', 'rm', 'vob', 'mpg', 'mpeg'}
+
+                def extract_ext(chk_str):
+                    if not chk_str: return None
+                    try:
+                        chk_str = unquote(chk_str)
+                    except: pass
+                    
+                    check_lower = chk_str.lower()
+                    # 1. Standard check
+                    for ext in valid_exts:
+                        if check_lower.endswith(f".{ext}"):
+                            return ext
+                    
+                    # 2. Query params check
+                    try:
+                        parsed = urlparse(chk_str)
+                        qs = parse_qs(parsed.query)
+                        for values in qs.values():
+                            for val in values:
+                                v_lower = val.lower()
+                                for ext in valid_exts:
+                                    if v_lower.endswith(f".{ext}"):
+                                        return ext
+                    except: pass
+                    
+                    # 3. Path segments check
+                    try:
+                        # Remove query params first if present in string but not parsed above (rare if valid url)
+                        path_part = chk_str.split('?')[0]
+                        segments = path_part.split('/')
+                        if segments[-1] == '?': # trailing /
+                            segments = segments[:-1]
+                        for seg in segments:
+                            s_lower = seg.lower()
+                            for ext in valid_exts:
+                                if s_lower.endswith(f".{ext}"):
+                                    return ext
+                    except: pass
+                    return None
+
+                # Attempt 1: From KodiPath (the http url)
+                found_ext = extract_ext(Item.get('KodiPath'))
+
+                # Attempt 2: From Item['Path'] (likely filesystem path)
+                if not found_ext:
+                    raw_path = Item.get('Path', '')
+                    if raw_path:
+                        # Safety Check: Standardize check for Windows paths to avoid false positives on Linux filenames.
+                        # Pure Windows paths have backslashes but no forward slashes.
+                        # Mixed paths (Linux) are left alone to preserve potential backslashes in filenames.
+                        if '\\' in raw_path and '/' not in raw_path: 
+                            raw_path = raw_path.replace('\\', '/')
+                        
+                        if raw_path.lower().endswith('.strm'):
+                            raw_path = raw_path[:-5] # Remove .strm
+                        
+                        found_ext = extract_ext(raw_path)
+                # Attempt 3: Request final link from MediaSources
+                # Check setting before performing slow network requests
+                if not found_ext and 'MediaSources' in Item and Item['MediaSources'] and utils.Addon.getSetting("strm_ext_from_url") == 'true':
+                    try:
+                        video_url = Item['MediaSources'][0].get('Path')
+                        if video_url and (video_url.lower().startswith('http://') or video_url.lower().startswith('https://')):
+                            req = Request(video_url, method='HEAD')
+                            req.add_header('User-Agent', xbmc.getUserAgent())
+                            # Use a short timeout to prevent sync blocking
+                            with urlopen(req, timeout=3) as resp:
+                                final_url = resp.geturl()
+                                found_ext = extract_ext(final_url)
+                    except Exception:
+                        pass
+            name = Item.get('Name', 'unknown')
+            if found_ext:
+                Item['KodiFilename'] = f"{name}.{found_ext}"
+            else:
+                Item['KodiFilename'] = f"{name}"
+
+    # elif Container == 'iso' or KodiPathLower.endswith(".iso"):
+    #     NativeMode = True
+    elif KodiPathLower.startswith("dav://") or KodiPathLower.startswith("davs://"):
+        NativeMode = True
 
     if NativeMode:
         PathSeperator = utils.get_Path_Seperator(Item['KodiPath'])

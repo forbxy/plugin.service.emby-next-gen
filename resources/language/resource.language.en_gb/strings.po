@@ -3602,3 +3602,11 @@ msgstr ""
 msgctxt "#33860"
 msgid "Restored backup from:"
 msgstr ""
+
+msgctxt "#50801"
+msgid "Detect video extension from STRM URL"
+msgstr ""
+
+msgctxt "#50802"
+msgid "When video format cannot be determined from Emby metadata, STRM path or URL, use HEAD request to resolve final URL. This causes sync to be slower. Massively fetching download addresses may also trigger cloud provider risk controls. Use with caution."
+msgstr ""

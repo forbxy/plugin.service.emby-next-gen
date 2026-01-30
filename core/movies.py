@@ -1,4 +1,5 @@
 import xbmc
+import base64
 from helper import utils
 from . import common, genre, tag, studio, person, trailer
 
@@ -146,11 +147,18 @@ class Movies:
 
         if UpdateKodiFavorite:
             self.set_favorite(Item['IsFavorite'], Item)
-
+        
+        PlayerState = None
+        if Item['Type'] == 'Movie':
+             DisplayPrefs = self.EmbyServer.API.get_display_preferences(Item['Id'])
+             if DisplayPrefs and 'CustomPrefs' in DisplayPrefs and 'PlayerState' in DisplayPrefs['CustomPrefs']:
+                 try:
+                     PlayerState = base64.b64decode(DisplayPrefs['CustomPrefs']['PlayerState']).decode('utf-8')
+                 except:
+                     PlayerState = None
         for BookmarkData in self.SQLs["video"].get_BookmarkData_by_videoversion(Item['KodiItemId'], "movie"):
-            if self.SQLs["video"].update_bookmark_playstate(BookmarkData[0], Item['KodiPlayCount'], Item['KodiLastPlayedDate'], Item['KodiPlaybackPositionTicks'], BookmarkData[1]):
+            if self.SQLs["video"].update_bookmark_playstate(BookmarkData[0], Item['KodiPlayCount'], Item['KodiLastPlayedDate'], Item['KodiPlaybackPositionTicks'], BookmarkData[1], PlayerState):
                 Update = True
-
             if int(IncrementalSync):
                 xbmc.log(f"EMBY.core.movies: USERDATA [{BookmarkData[0]} / {Item['KodiItemId']}] {Item['Id']}", 1) # LOGINFO
             elif utils.DebugLog:

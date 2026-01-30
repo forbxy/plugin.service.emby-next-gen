@@ -1,6 +1,8 @@
 import threading
 import json
 import xbmc
+import json
+import base64
 from helper import utils, queue
 from database import dbio
 from . import listitem
@@ -71,6 +73,30 @@ class API:
 
         if not utils.getCast:
             self.DynamicListsRemoveFields += ("People",)
+
+    def get_display_preferences(self, Id):
+        try:
+            _, _, Payload = self.EmbyServer.http.request("GET", f"DisplayPreferences/{Id}", {'UserId': self.EmbyServer.ServerData['UserId'], 'Client': 'emby-kodi'}, {}, False, "", False, None, "", False, False)
+
+            if Payload:
+                return Payload
+        except Exception as Error:
+            xbmc.log(f"EMBY.emby.api: get_display_preferences error: {Error}", 3) # LOGERROR
+
+        return None
+
+    def update_display_preferences(self, Id, data):
+        try:
+            # xbmc.log(f"EMBY.emby.api: update_display_preferences Request: Id={Id} Data={data}", 1) # LOGINFO
+            StatusCode, _, Payload = self.EmbyServer.http.request("POST", f"DisplayPreferences/{Id}?UserId={self.EmbyServer.ServerData['UserId']}&Client=emby-kodi", data, {}, False, "", False, None, "", False, False)
+            # xbmc.log(f"EMBY.emby.api: update_display_preferences Response: StatusCode={StatusCode} Payload={Payload}", 1) # LOGINFO
+
+            if Payload:
+                return True
+        except Exception as Error:
+            xbmc.log(f"EMBY.emby.api: update_display_preferences error: {Error}", 3) # LOGERROR
+
+        return False
 
     def open_livestream(self, Id):
         _, _, Payload = self.EmbyServer.http.request("POST", f"Items/{Id}/PlaybackInfo", {'UserId': self.EmbyServer.ServerData['UserId'], "IsPlayback": "true", "AutoOpenLiveStream": "true"}, {}, False, "", False, None, "", False, False)
@@ -946,9 +972,30 @@ class API:
                 isFolder, ListItem = listitem.set_ListItem_from_Kodi_database(KodiItem[0])
 
                 if 'pathandfilename' in KodiItem[0]:
-                    return {"ListItem": ListItem, "Path": KodiItem[0]['pathandfilename'], "IsFolder": isFolder, "Type": KodiItem[1], "Name": BasicItem['Name'], "Id": BasicItem['Id']}
+                    Item = {"ListItem": ListItem, "Path": KodiItem[0]['pathandfilename'], "IsFolder": isFolder, "Type": KodiItem[1], "Name": BasicItem['Name'], "Id": BasicItem['Id']}
+                else:
+                    Item = {"ListItem": ListItem, "Path": KodiItem[0]['path'], "IsFolder": isFolder, "Type": KodiItem[1], "Name": BasicItem['Name'], "Id": BasicItem['Id']}
 
-                return {"ListItem": ListItem, "Path": KodiItem[0]['path'], "IsFolder": isFolder, "Type": KodiItem[1], "Name": BasicItem['Name'], "Id": BasicItem['Id']}
+                if BasicItem.get('UserData', {}).get('PlaybackPositionTicks', 0) > 0:
+                    Preferences = self.get_display_preferences(BasicItem['Id'])
+
+                    if Preferences and 'CustomPrefs' in Preferences:
+                        if 'PlayerState' in Preferences['CustomPrefs']:
+                            try:
+                                DecodedState = base64.b64decode(Preferences['CustomPrefs']['PlayerState']) # .decode('latin-1')
+                                
+                                # Compatibility check if it was saved as correct utf-8 string, if not fallback to latin-1
+                                try:
+                                    Item['PlayerState'] = DecodedState.decode('utf-8')
+                                except:
+                                    Item['PlayerState'] = DecodedState.decode('latin-1')
+
+                                Item['ListItem'].setProperty('PlayerState', Item['PlayerState'])
+                                xbmc.log(f"EMBY.emby.api: get_ListItem - Restored PlayerState to ListItem property for {BasicItem['Id']}", 1)
+                            except Exception as Error:
+                                xbmc.log(f"EMBY.emby.api: get_ListItem - PlayerState decode failed: {Error}", 2)
+
+                return Item
 
         return {}
 

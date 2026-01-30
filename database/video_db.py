@@ -53,6 +53,20 @@ class VideoDatabase:
         except Exception as Error:
             xbmc.log(f"EMBY.database.video_db: Database delete index error: {Error}", 3) # LOGERROR
 
+
+    def get_idFile(self, KodiItemId, ContentType):
+        if ContentType == "movie":
+            self.cursor.execute("SELECT idFile FROM movie WHERE idMovie = ?", (KodiItemId,))
+        elif ContentType == "musicvideo":
+            self.cursor.execute("SELECT idFile FROM musicvideo WHERE idMVideo = ?", (KodiItemId,))
+        elif ContentType == "episode":
+            self.cursor.execute("SELECT idFile FROM episode WHERE idEpisode = ?", (KodiItemId,))
+        else:
+            return None
+        
+        Result = self.cursor.fetchone()
+        return Result[0] if Result else None
+
     # playcount
     def get_playcount(self, KodiItemId, ContentType):
         if ContentType == "movie":
@@ -1431,6 +1445,15 @@ class VideoDatabase:
     def delete_bookmark(self, KodiFileId, BookmarkType):
         self.cursor.execute("DELETE FROM bookmark WHERE idFile = ? AND type = ?", (KodiFileId, BookmarkType))
 
+    def get_bookmark_playstate(self, KodiFileId):
+        self.cursor.execute("SELECT playerState FROM bookmark WHERE idFile = ? AND type = ?", (KodiFileId, "1"))
+        Data = self.cursor.fetchone()
+
+        if Data and Data[0]:
+            return Data[0]
+
+        return None
+
     def add_bookmarks(self, KodiFileId, RunTimeTicks, KodiChapters):
         SQLData = ()
 
@@ -1442,25 +1465,38 @@ class VideoDatabase:
 
         del SQLData
 
-    def update_bookmark_playstate(self, KodiFileId, playcount, date_played, Progress, Runtime):
+    def update_bookmark_playstate(self, KodiFileId, playcount, date_played, Progress, Runtime, PlayerState=None):
         Update = False
 
-        self.cursor.execute("SELECT timeInSeconds FROM bookmark WHERE idFile = ? AND type = ?", (KodiFileId, "1"))
+        self.cursor.execute("SELECT timeInSeconds, playerState FROM bookmark WHERE idFile = ? AND type = ?", (KodiFileId, "1"))
         Data = self.cursor.fetchone()
 
         if Data:
             CurrentProgress = Data[0]
+            CurrentPlayerState = Data[1]
 
             if Progress:
+                NeedsUpdate = False
                 if CurrentProgress != Progress:
-                    self.cursor.execute("UPDATE bookmark SET timeInSeconds = ?, totalTimeInSeconds = ? WHERE idFile = ?", (Progress, Runtime, KodiFileId))
+                    NeedsUpdate = True
+                if PlayerState is not None and CurrentPlayerState != PlayerState:
+                    NeedsUpdate = True
+
+                if NeedsUpdate:
+                    if PlayerState is not None:
+                        self.cursor.execute("UPDATE bookmark SET timeInSeconds = ?, totalTimeInSeconds = ?, playerState = ? WHERE idFile = ?", (Progress, Runtime, PlayerState, KodiFileId))
+                    else:
+                        self.cursor.execute("UPDATE bookmark SET timeInSeconds = ?, totalTimeInSeconds = ? WHERE idFile = ?", (Progress, Runtime, KodiFileId))
                     Update = True
             else:
                 self.cursor.execute("DELETE FROM bookmark WHERE idFile = ? AND type = ?", (KodiFileId, "1"))
                 Update = True
         elif Progress:
             Update = True
-            self.cursor.execute("INSERT INTO bookmark(idFile, timeInSeconds, totalTimeInSeconds, player, type) VALUES (?, ?, ?, ?, ?)", (KodiFileId, Progress, Runtime, "VideoPlayer", 1))
+            if PlayerState:
+                self.cursor.execute("INSERT INTO bookmark(idFile, timeInSeconds, totalTimeInSeconds, player, playerState, type) VALUES (?, ?, ?, ?, ?, ?)", (KodiFileId, Progress, Runtime, "VideoPlayer", PlayerState, 1))
+            else:
+                self.cursor.execute("INSERT INTO bookmark(idFile, timeInSeconds, totalTimeInSeconds, player, type) VALUES (?, ?, ?, ?, ?)", (KodiFileId, Progress, Runtime, "VideoPlayer", 1))
 
         # Update playcounter and last played date
         self.cursor.execute("SELECT playCount FROM files WHERE idFile = ?", (KodiFileId,))

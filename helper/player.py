@@ -1,6 +1,7 @@
 import threading
 import random
 import uuid
+import base64
 from urllib.parse import unquote_plus
 import json
 import xbmc
@@ -590,6 +591,41 @@ def stop_playback(delete, PlaybackEnded):
 
     if PlaybackEnded and PlayingItemLocal[0]['RunTimeTicks']:
         PlayingItemLocal[0]['PositionTicks'] = PlayingItemLocal[0]['RunTimeTicks']
+
+    # Try to capture PlayerState (libbluraystate) for ISOs/Blurays
+    if not PlaybackEnded and PlayingItemLocal[6] in ("movie", "episode", "musicvideo") and PlayingItemLocal[4]:
+        try:
+            ServerId = PlayingItemLocal[4].ServerData['ServerId']
+            embydb = dbio.DBOpenRO(ServerId, "stop_playback_state")
+            KodiId = embydb.get_KodiId_by_EmbyId_EmbyType(PlayingItemLocal[0]['ItemId'], PlayingItemLocal[6].capitalize())
+            dbio.DBCloseRO(ServerId, "stop_playback_state")
+
+            if KodiId:
+                videodb = dbio.DBOpenRO("video", "stop_playback_state")
+                idFile = videodb.get_idFile(KodiId, PlayingItemLocal[6])
+                
+                if idFile:
+                    PlayerState = videodb.get_bookmark_playstate(idFile)
+                    
+                    if PlayerState:
+                        if isinstance(PlayerState, str):
+                             PlayerState = PlayerState.encode('utf-8')
+
+                        EncodedState = base64.b64encode(PlayerState).decode('ascii')
+                        PlayingItemLocal[4].API.update_display_preferences(PlayingItemLocal[0]['ItemId'], {'CustomPrefs': {'PlayerState': EncodedState}})
+                        xbmc.log(f"EMBY.helper.player: Updated DisplayPreferences with PlayerState for {PlayingItemLocal[0]['ItemId']}", 1)
+
+                dbio.DBCloseRO("video", "stop_playback_state")
+        except Exception as Error:
+            xbmc.log(f"EMBY.helper.player: Failed to capture PlayerState: {Error}", 2)
+
+    # Clear PlayerState (libbluraystate) for ISOs/Blurays when playback ends
+    if PlaybackEnded and PlayingItemLocal[6] in ("movie", "episode", "musicvideo") and PlayingItemLocal[4]:
+        try:
+             PlayingItemLocal[4].API.update_display_preferences(PlayingItemLocal[0]['ItemId'], {'CustomPrefs': {'PlayerState': None}})
+             xbmc.log(f"EMBY.helper.player: Cleared DisplayPreferences PlayerState for {PlayingItemLocal[0]['ItemId']}", 1)
+        except Exception as Error:
+            xbmc.log(f"EMBY.helper.player: Failed to clear PlayerState: {Error}", 2)
 
     utils.update_querycache_userdata(((str(PlayingItemLocal[0]['ItemId']), PlayingItemLocal[0]['PositionTicks'], utils.currenttime(), -1, PlaybackEnded),))
 

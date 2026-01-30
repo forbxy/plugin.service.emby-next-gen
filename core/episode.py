@@ -1,4 +1,5 @@
 import xbmc
+import base64
 from helper import utils
 from . import common, series, season, genre, studio, person
 
@@ -115,10 +116,22 @@ class Episode:
         common.set_Favorite(Item)
         common.set_playstate(Item)
         common.set_RunTimeTicks(Item)
-        Update = self.SQLs["video"].update_bookmark_playstate(Item['KodiFileId'], Item['KodiPlayCount'], Item['KodiLastPlayedDate'], Item['KodiPlaybackPositionTicks'], Item['KodiRunTimeTicks'])
+        Update = False
 
         if UpdateKodiFavorite:
             self.set_favorite(Item['IsFavorite'], Item)
+        
+        PlayerState = None
+        if Item['Type'] == 'Episode':
+             DisplayPrefs = self.EmbyServer.API.get_display_preferences(Item['Id'])
+             if DisplayPrefs and 'CustomPrefs' in DisplayPrefs and 'PlayerState' in DisplayPrefs['CustomPrefs']:
+                 try:
+                     PlayerState = base64.b64decode(DisplayPrefs['CustomPrefs']['PlayerState']).decode('utf-8')
+                 except:
+                     PlayerState = None
+
+        if self.SQLs["video"].update_bookmark_playstate(Item['KodiFileId'], Item['KodiPlayCount'], Item['KodiLastPlayedDate'], Item['KodiPlaybackPositionTicks'], Item['KodiRunTimeTicks'], PlayerState):
+            Update = True
 
         self.SQLs["emby"].update_favourite(Item['IsFavorite'], Item['Id'], "Episode")
 

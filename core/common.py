@@ -532,26 +532,29 @@ def set_streams(Item):
 
     # Sort mediasources -> core infos must reference first mediasource
     if Item['MediaSources'][0]['Type'] != "Default":
+
         if utils.DebugLog: xbmc.log(f"EMBY.core.common (DEBUG): Sort -> First Mediasource is not default: {Item['Name']}", 1) # LOGDEBUG
-        MediaSourcesLen = len(Item['MediaSources'])
-        MediaSourcesSort = MediaSourcesLen * [None]
-        Index = 1
-
-        for MediaSource in Item['MediaSources']:
-            if MediaSource['Type'] == "Default":
-                MediaSourcesSort[0] = MediaSource
+        defaults = []
+        others = []
+        for source in Item['MediaSources']:
+            if source.get('Type') == "Default":
+                defaults.append(source)
             else:
-                if Index == MediaSourcesLen:
-                    MediaSourcesSort[0] = MediaSource
-                else:
-                    MediaSourcesSort[Index] = MediaSource
-
-                Index += 1
-
-        Item['MediaSources'] = MediaSourcesSort
+                others.append(source)
+        
+        # If we have a default, put it first, then the rest
+        if defaults:
+            Item['MediaSources'] = defaults + others
+        # If no default found, rotate the list (move last to first) to match original behavior intent
+        elif others:
+             Item['MediaSources'] = [others[-1]] + others[:-1]
 
     # Streams
     for MediaSource in Item['MediaSources']:
+        if MediaSource is None:
+             xbmc.log(f"EMBY.core.common: set_streams -> Found None in MediaSources, skipping. Item: {Item.get('Name')}", 2) # LOGWARNING
+             continue
+
         MediaSource['Path'] = MediaSource.get('Path', "")
         MediaSource['Size'] = MediaSource.get('Size', "")
         RunTimeTicks = MediaSource.get('RunTimeTicks', Item.get('RunTimeTicks', None))

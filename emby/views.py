@@ -441,7 +441,13 @@ class Views:
 
             if "Primary" in library["ImageTags"]:
                 IconPath = f"http://127.0.0.1:57342/picture/{self.EmbyServer.ServerData['ServerId']}/p-{library['Id']}-0-p-{library['ImageTags']['Primary']}"
-
+                IconLocalDir = f"special://profile/addon_data/plugin.service.emby-next-gen/library_icons/{self.EmbyServer.ServerData['ServerId']}/"
+                utils.mkDir(IconLocalDir)
+                IconLocalPath = f"{IconLocalDir}p-{library['Id']}-0-p-{library['ImageTags']['Primary']}.png"
+                if not xbmcvfs.exists(IconLocalPath):
+                    xbmcvfs.copy(IconPath, IconLocalPath)
+                IconPath = IconLocalPath
+                
             self.ViewItems[library['Id']] = [utils.decode_XML(library['Name']), library['ContentType'], IconPath]
 
     # Remove playlist based on LibraryId
@@ -500,7 +506,7 @@ class Views:
             elif view['ContentType'] in ('music', 'audiobooks', 'podcasts', 'playlistsaudio'):
                 view['Icon'] = 'DefaultMusicSongs.png'
             else:
-                view['Icon'] = "special://home/addons/plugin.service.emby-next-gen/resources/icon.png"
+                view['Icon'] = "special://home/addons/plugin.service.emby-next-gen/resources/clearlogo.png"
 
         if view['ContentType'] not in ("rootaudio", "rootvideo"):
             if view['ContentType'] in ('music', 'audiobooks', 'podcasts', 'playlistsaudio'):

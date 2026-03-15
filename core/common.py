@@ -241,6 +241,9 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
         Item['KodiPath'] = Item['KodiPath'].replace('//', "/")  # fix trailing "/" (Emby server path substitution -> user assigned "wrong" trailing "/")
         Item['KodiPath'] = Item['KodiPath'].replace('SMBINJECT', "smb://") # only replace \\ on beginning with smb://
     elif '://' in Item['KodiPath']:
+        if Item['KodiPath'].lower().startswith(('http', 'dav', 'webdav')):
+             Item['KodiPath'] = utils.normalize_url(Item['KodiPath'])
+
         protocol = Item['KodiPath'].split('://')[0]
         Item['KodiPath'] = Item['KodiPath'].replace(protocol, protocol.lower())
     else:
@@ -374,7 +377,7 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
                                 found_ext = extract_ext(final_url)
                     except Exception:
                         pass
-            name = Item.get('Name', 'unknown')
+            name = quote(Item.get('Name', 'unknown'))
             if found_ext:
                 Item['KodiFilename'] = f"{name}.{found_ext}"
             else:

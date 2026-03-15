@@ -555,7 +555,9 @@ def send_redirect(client, MetaData, Data):
     utils.close_busyDialog()
 
     if MetaData['isHttp'] and utils.followhttp:
-        SendData = f"HTTP/1.1 307 Temporary Redirect\r\nServer: Emby-Next-Gen\r\nConnection: close\r\nLocation: {MetaData['MediaSources'][MetaData['SelectionIndexMediaSource']][0]['Path']}\r\nContent-Length: 0\r\nAccept-Ranges: none\r\n\r\n".encode()
+        RawPath = MetaData['MediaSources'][MetaData['SelectionIndexMediaSource']][0]['Path']
+        NormPath = utils.normalize_url(RawPath)
+        SendData = f"HTTP/1.1 307 Temporary Redirect\r\nServer: Emby-Next-Gen\r\nConnection: close\r\nLocation: {NormPath}\r\nContent-Length: 0\r\nAccept-Ranges: none\r\n\r\n".encode()
     else:
         Path = build_Path(MetaData, Data)
 

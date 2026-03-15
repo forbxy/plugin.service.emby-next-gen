@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' standalone="yes"?>
+<addon id="plugin.service.emby-next-gen" name="Emby for Kodi Next Gen" version="12.4.15" provider-name="quickmic">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+    </requires>
+    <extension point="xbmc.service" library="service.py" />
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <item library="service.py" args="record">
+                <label>33490</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyRecording),True) + String.StartsWith(ListItem.Path,"pvr://guide/") + !String.IsEmpty(ListItem.EPGEventIcon)]</visible>
+            </item>
+            <item library="service.py" args="specials">
+                <label>33485</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbySpecials),True) + [String.Contains(ListItem.Path,"-s-") | String.Contains(ListItem.Path,"-ms-")]]</visible>
+            </item>
+            <item library="service.py" args="multiversion">
+                <label>33748</label>
+                <visible>[String.Contains(ListItem.Path,"/e-") | String.Contains(ListItem.Path,"/musicvideos/")] + [String.Contains(ListItem.Path,"-m-") | String.Contains(ListItem.Path,"-ms-")]</visible>
+            </item>
+            <menu>
+                <label>33669</label>
+                <item library="service.py" args="gotoshow">
+                    <label>33670</label>
+                    <visible>[String.IsEqual(Window(10000).Property(EmbyGoto),True) + String.IsEqual(ListItem.DBTYPE,"episode")]</visible>
+                </item>
+                <item library="service.py" args="gotoseason">
+                    <label>33671</label>
+                    <visible>[String.IsEqual(Window(10000).Property(EmbyGoto),True) + String.IsEqual(ListItem.DBTYPE,"episode")]</visible>
+                </item>
+                <item library="service.py" args="gotoalbum">
+                    <label>33764</label>
+                    <visible>[String.IsEqual(Window(10000).Property(EmbyGoto),True) + String.IsEqual(ListItem.DBTYPE,"song")]</visible>
+                </item>
+                <item library="service.py" args="gotoartist">
+                    <label>33765</label>
+                    <visible>[String.IsEqual(Window(10000).Property(EmbyGoto),True) + String.IsEqual(ListItem.DBTYPE,"song")]</visible>
+                </item>
+            </menu>
+            <item library="service.py" args="similarshow">
+                <label>33788</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbySimilar),True) + String.IsEqual(ListItem.DBTYPE,"tvshow")]</visible>
+            </item>
+            <item library="service.py" args="similarartist">
+                <label>33788</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbySimilar),True) + String.IsEqual(ListItem.DBTYPE,"artist")]</visible>
+            </item>
+            <item library="service.py" args="similaralbum">
+                <label>33788</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbySimilar),True) + String.IsEqual(ListItem.DBTYPE,"album")]</visible>
+            </item>
+            <item library="service.py" args="similarmovie">
+                <label>33788</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbySimilar),True) + String.IsEqual(ListItem.DBTYPE,"movie")]</visible>
+            </item>
+            <item library="service.py" args="similarmusicvideo">
+                <label>33788</label>
+                <visible>[[String.IsEqual(Window(10000).Property(EmbySimilar),True) + String.IsEqual(ListItem.DBTYPE,"musicvideo")] + !String.IsEmpty(ListItem.DBID)]</visible>
+            </item>
+            <item library="service.py" args="download">
+                <label>33570</label>
+                <visible>String.IsEqual(Window(10000).Property(EmbyDownload),True) + [[String.Contains(ListItem.Path,"/v-") | String.Contains(ListItem.Path,"/e-") | String.Contains(ListItem.Path,"/m-") | String.Contains(ListItem.Path,"/M-") | [[[String.IsEqual(ListItem.DBTYPE,"tvshow") | String.IsEqual(ListItem.DBTYPE,"season")] + !String.EndsWith(ListItem.Label," (download)")] + [String.Contains(ListItem.Path,"/emby_addon_mode/") | String.Contains(ListItem.Path,"dav://127.0.0.1:57342/") | String.Contains(ListItem.Path,"http://127.0.0.1:57342/")]]] + !String.Contains(ListItem.Path,"/EMBY-offline-content/") + !String.Contains(ListItem.Path,"/dynamic/") + !String.IsEmpty(ListItem.DBID)]</visible>
+            </item>
+            <item library="service.py" args="deletedownload">
+                <label>33571</label>
+                <visible>String.IsEqual(Window(10000).Property(EmbyDownload),True) + [String.Contains(ListItem.Path,"/EMBY-offline-content/") | [[String.IsEqual(ListItem.DBTYPE,"tvshow") | String.IsEqual(ListItem.DBTYPE,"season")] + String.EndsWith(ListItem.Label," (download)")]]</visible>
+            </item>
+            <item library="service.py" args="favorites">
+                <label>33547</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyFavourite),True) + !String.StartsWith(ListItem.FolderPath,"library://") + !String.StartsWith(ListItem.FolderPath,"addons://") + !String.StartsWith(ListItem.FolderPath,"plugin://") + !String.StartsWith(ListItem.FolderPath,"favourites:") + !String.StartsWith(ListItem.Path,"pvr://")]</visible>
+            </item>
+            <item library="service.py" args="watchtogether">
+                <label>33548</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyRemote),True) + !String.StartsWith(ListItem.FolderPath,"library://") + !String.StartsWith(ListItem.FolderPath,"addons://") + !String.StartsWith(ListItem.FolderPath,"favourites:") + !String.IsEmpty(ListItem.Filename) + !String.IsEqual(ListItem.FileExtension,"m3u") + !String.StartsWith(ListItem.Path,"pvr://")]</visible>
+            </item>
+            <item library="service.py" args="remoteplay">
+                <label>33652</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyRemote),True) + !String.StartsWith(ListItem.FolderPath,"library://") + !String.StartsWith(ListItem.FolderPath,"addons://") + !String.StartsWith(ListItem.FolderPath,"favourites:") + !String.IsEmpty(ListItem.Filename) + !String.IsEqual(ListItem.FileExtension,"m3u") + !String.StartsWith(ListItem.Path,"pvr://")]</visible>
+            </item>
+            <item library="service.py" args="addremoteclient">
+                <label>33519</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyRemote),True) + !String.StartsWith(ListItem.FolderPath,"library://") + !String.StartsWith(ListItem.FolderPath,"addons://") + !String.StartsWith(ListItem.FolderPath,"plugin://")]</visible>
+            </item>
+            <item library="service.py" args="removeremoteclient">
+                <label>33518</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyRemote),True) + String.IsEqual(Window(10000).Property(EmbyRemoteclient),True)]</visible>
+            </item>
+            <item library="service.py" args="refreshitem">
+                <label>30410</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyRefresh),True) + !String.StartsWith(ListItem.FolderPath,"addons://") + !String.StartsWith(ListItem.FolderPath,"plugin://") + !String.StartsWith(ListItem.FolderPath,"favourites:") + !String.IsEqual(ListItem.FileExtension,"m3u") + !String.StartsWith(ListItem.Path,"pvr://")] + [!String.IsEmpty(ListItem.Filename) | [String.IsEqual(ListItem.DBTYPE,"tvshow") | String.IsEqual(ListItem.DBTYPE,"season")]]</visible>
+            </item>
+            <item library="service.py" args="deleteitem">
+                <label>30409</label>
+                <visible>[!String.StartsWith(ListItem.FolderPath,"library://") + !String.StartsWith(ListItem.FolderPath,"addons://") + !String.StartsWith(ListItem.FolderPath,"plugin://") + String.IsEqual(Window(10000).Property(EmbyDelete),True)]</visible>
+            </item>
+            <item library="service.py" args="settings">
+                <label>33675</label>
+                <visible>String.IsEqual(Window(10000).Property(EmbySettings),True)</visible>
+            </item>
+            <item library="service.py" args="playrandom">
+                <label>33797</label>
+                <visible>[String.IsEqual(Window(10000).Property(EmbyPlayRandom),True) + [String.IsEqual(ListItem.DBTYPE,"musicvideo") | String.IsEqual(ListItem.DBTYPE,"episode") | String.IsEqual(ListItem.DBTYPE,"movie") | String.IsEqual(ListItem.DBTYPE,"tvshow") | String.IsEqual(ListItem.DBTYPE,"season")]]</visible>
+            </item>
+        </menu>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <platform>all</platform>
+        <language>en</language>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+        <forum>https://emby.media/community/index.php?/forum/99-kodi/</forum>
+        <website>https://emby.media/</website>
+        <source>https://github.com/MediaBrowser/plugin.video.emby</source>
+        <description lang="en">Welcome to Emby for Kodi A whole new way to manage and view your media library. The Emby addon for Kodi combines the best of Kodi - ultra smooth navigation, beautiful UIs and playback of any file under the sun, and Emby - the most powerful fully open source multi-client media metadata indexer and server.
+
+Emby for Kodi is the absolute best way to enjoy the incredible Kodi playback engine combined with the power of Emby&#39;s centralized database. Features: Direct integration with the Kodi library for native Kodi speed Instant synchronization with the Emby server Full support for Movie, TV and Music collections Emby Server direct stream and transcoding support - use Kodi when you are away from home!</description>
+        <description lang="es">Bienvenido a Emby para Kodi una forma completamente nueva de gestionar y ver su biblioteca multimedia. El complemento Emby para Kodi combina lo mejor de Kodi - navegaci&#243;n ultra suave, interfaces hermosas de usuario y la reproducci&#243;n de cualquier archivo bajo el sol, y Emby - el indexador y servidor de metadatos multimedia multicliente de c&#243;digo abierto m&#225;s potente.
+
+Emby para Kodi es la mejor manera de disfrutar del incre&#237;ble motor de reproducci&#243;n de Kodi combinado con el poder de la base de datos centralizada de Emby. Caracter&#237;sticas: Integraci&#243;n directa con la biblioteca de Kodi para una velocidad nativa de sincronizaci&#243;n instant&#225;nea con el soporte completo del Servidor Emby para colecciones de pel&#237;culas, programas de TV y m&#250;sica. Emby Server soporta transcodificaci&#243;n y transmisi&#243;n en directo - &#161;Usa Kodi cuando est&#233;s fuera de casa!</description>
+        <description lang="cz">V&#237;tejte v Emby pro Kodi Zcela nov&#253; zp&#367;sob spr&#225;vy a zobrazen&#237; va&#353;&#237; knihovny m&#233;di&#237;. Dopln&#283;k Emby pro Kodi kombinuje to nejlep&#353;&#237; z Kodi &#8211; ultra plynulou navigaci, kr&#225;sn&#225; u&#382;ivatelsk&#225; rozhran&#237; a p&#345;ehr&#225;v&#225;n&#237; jak&#233;hokoli souboru pod sluncem a Emby &#8211; nejv&#253;konn&#283;j&#353;&#237; pln&#283; open source multiklientsk&#253; index&#225;tor metadat m&#233;di&#237; a server.
+
+    Emby for Kodi je absolutn&#283; nejlep&#353;&#237; zp&#367;sob, jak si u&#382;&#237;t neuv&#283;&#345;iteln&#253; p&#345;ehr&#225;vac&#237; engine Kodi v kombinaci s v&#253;konem centralizovan&#233; datab&#225;ze Emby. Vlastnosti: P&#345;&#237;m&#225; integrace s knihovnou Kodi pro nativn&#237; rychlost Kodi Okam&#382;it&#225; synchronizace se serverem Emby Pln&#225; podpora sb&#237;rek film&#367;, TV a hudby Emby Server p&#345;&#237;m&#253; stream a podpora p&#345;ek&#243;dov&#225;n&#237; &#8211; pou&#382;&#237;vejte Kodi, kdy&#382; jste mimo domov!</description>
+        <description lang="de">Willkommen bei Emby f&#252;r Kodi. Eine v&#246;llig neue M&#246;glichkeit, Ihre Medienbibliothek zu verwalten und anzuzeigen. Das Emby-Add-on f&#252;r Kodi kombiniert das Beste von Kodi &#8211; extrem reibungslose Navigation, sch&#246;ne Benutzeroberfl&#228;chen und Wiedergabe jeder Datei unter der Sonne &#8211; und Emby &#8211; den leistungsst&#228;rksten, vollst&#228;ndig Open-Source-Multi-Client-Medienmetadaten-Indexer und -Server.
+
+    Emby f&#252;r Kodi ist die absolut beste M&#246;glichkeit, die unglaubliche Kodi-Wiedergabe-Engine kombiniert mit der Leistungsf&#228;higkeit der zentralisierten Datenbank von Emby zu genie&#223;en. Funktionen: Direkte Integration mit der Kodi-Bibliothek f&#252;r native Kodi-Geschwindigkeit. Sofortige Synchronisierung mit dem Emby-Server. Volle Unterst&#252;tzung f&#252;r Film-, Fernseh- und Musiksammlungen. Emby Server-Direktstream- und Transkodierungsunterst&#252;tzung &#8211; verwenden Sie Kodi, wenn Sie nicht zu Hause sind.</description>
+        <description lang="fr">Bienvenue dans Emby pour Kodi Une toute nouvelle fa&#231;on de g&#233;rer et d&#39;afficher votre biblioth&#232;que multim&#233;dia. L&#39;addon Emby pour Kodi combine le meilleur de Kodi - une navigation ultra fluide, de belles interfaces utilisateur et la lecture de n&#39;importe quel fichier sous le soleil, et Emby - l&#39;indexeur et le serveur de m&#233;tadonn&#233;es multim&#233;dia multi-client enti&#232;rement open source le plus puissant.
+
+    Emby pour Kodi est le meilleur moyen absolu de profiter de l&#39;incroyable moteur de lecture Kodi combin&#233; &#224; la puissance de la base de donn&#233;es centralis&#233;e d&#39;Emby. Caract&#233;ristiques&#160;: Int&#233;gration directe avec la biblioth&#232;que Kodi pour une vitesse Kodi native Synchronisation instantan&#233;e avec le serveur Emby Prise en charge compl&#232;te des collections de films, de t&#233;l&#233;vision et de musique Prise en charge directe du flux et du transcodage du serveur Emby - utilisez Kodi lorsque vous n&#39;&#234;tes pas chez vous&#160;!</description>
+        <description lang="it">Benvenuto in Emby per Kodi Un modo completamente nuovo per gestire e visualizzare la tua libreria multimediale. L&#39;addon Emby per Kodi combina il meglio di Kodi: navigazione ultra fluida, bellissime interfacce utente e riproduzione di qualsiasi file sotto il sole, ed Emby, il pi&#249; potente indicizzatore e server di metadati multimediali multi-client completamente open source.
+
+    Emby per Kodi &#232; il modo migliore in assoluto per godersi l&#39;incredibile motore di riproduzione di Kodi combinato con la potenza del database centralizzato di Emby. Caratteristiche: Integrazione diretta con la libreria Kodi per la velocit&#224; nativa di Kodi Sincronizzazione istantanea con il server Emby Supporto completo per raccolte di film, TV e musica Emby Server streaming diretto e supporto per la transcodifica: usa Kodi quando sei lontano da casa!</description>
+        <description lang="nl">Welkom bij Emby voor Kodi Een geheel nieuwe manier om uw mediabibliotheek te beheren en te bekijken. De Emby-add-on voor Kodi combineert het beste van Kodi - ultrasoepele navigatie, prachtige gebruikersinterfaces en het afspelen van elk bestand onder de zon, en Emby - de krachtigste volledig open source multi-client mediametadata-indexer en -server.
+
+    Emby voor Kodi is absoluut de beste manier om te genieten van de ongelooflijke Kodi-afspeelengine in combinatie met de kracht van Emby&#39;s gecentraliseerde database. Kenmerken: Directe integratie met de Kodi-bibliotheek voor native Kodi-snelheid Onmiddellijke synchronisatie met de Emby-server Volledige ondersteuning voor film-, tv- en muziekcollecties Ondersteuning voor directe stream en transcodering van Emby Server - gebruik Kodi wanneer u niet thuis bent!</description>
+        <description lang="pl">Witamy w Emby dla Kodi Zupe&#322;nie nowy spos&#243;b zarz&#261;dzania bibliotek&#261; multimedi&#243;w i przegl&#261;dania jej. Dodatek Emby dla Kodi &#322;&#261;czy w sobie to, co najlepsze w Kodi &#8211; ultra p&#322;ynn&#261; nawigacj&#281;, pi&#281;kne interfejsy u&#380;ytkownika i odtwarzanie dowolnego pliku pod s&#322;o&#324;cem oraz Emby &#8211; najpot&#281;&#380;niejszy w pe&#322;ni open source indeksator metadanych multimedi&#243;w dla wielu klient&#243;w i serwer.
+
+    Emby dla Kodi to absolutnie najlepszy spos&#243;b, aby cieszy&#263; si&#281; niesamowitym silnikiem odtwarzania Kodi w po&#322;&#261;czeniu z moc&#261; scentralizowanej bazy danych Emby. Funkcje: Bezpo&#347;rednia integracja z bibliotek&#261; Kodi dla natywnej szybko&#347;ci Kodi Natychmiastowa synchronizacja z serwerem Emby Pe&#322;na obs&#322;uga kolekcji film&#243;w, program&#243;w telewizyjnych i muzyki Serwer Emby obs&#322;uguje bezpo&#347;redni&#261; transmisj&#281; strumieniow&#261; i transkodowanie &#8212; korzystaj z Kodi, gdy jeste&#347; poza domem!</description>
+        <description lang="sv">V&#228;lkommen till Emby f&#246;r Kodi Ett helt nytt s&#228;tt att hantera och visa ditt mediebibliotek. Emby-till&#228;gget f&#246;r Kodi kombinerar det b&#228;sta fr&#229;n Kodi - ultrasmidig navigering, vackra anv&#228;ndargr&#228;nssnitt och uppspelning av alla filer under solen, och Emby - den mest kraftfulla helt &#246;ppen k&#228;llkod f&#246;r multiklient-metadataindexerare och -server.
+
+    Emby for Kodi &#228;r det absolut b&#228;sta s&#228;ttet att njuta av den otroliga Kodi-uppspelningsmotorn i kombination med kraften i Embys centraliserade databas. Funktioner: Direkt integration med Kodi-biblioteket f&#246;r inbyggd Kodi-hastighet Omedelbar synkronisering med Emby-servern Fullst&#228;ndigt st&#246;d f&#246;r film-, TV- och musiksamlingar Emby Server direktstr&#246;mning och omkodningsst&#246;d - anv&#228;nd Kodi n&#228;r du &#228;r borta fr&#229;n hemmet!</description>
+        <description lang="zh">欢迎使用 Emby for Kodi，这是一种管理和浏览媒体库的全新方式。Kodi 的 Emby 插件融合了 Kodi 的优势——超流畅的导航、精美的用户界面和几乎支持所有格式的文件播放，以及 Emby——功能最强大的完全开源多客户端媒体元数据索引器和服务器。
+
+Emby for Kodi 是体验卓越的 Kodi 播放引擎与 Emby 集中式数据库强大功能相结合的最佳选择。主要特性：与 Kodi 媒体库直接集成，带来原生 Kodi 速度；与 Emby 服务器即时同步；全面支持电影、电视和音乐收藏；Emby 服务器提供直接流媒体和转码支持——即使出门在外也能使用 Kodi！</description>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+            <screenshot>resources/screenshot1.jpg</screenshot>
+            <screenshot>resources/screenshot2.jpg</screenshot>
+            <screenshot>resources/screenshot3.jpg</screenshot>
+            <screenshot>resources/screenshot4.jpg</screenshot>
+        </assets>
+    </extension>
+</addon>

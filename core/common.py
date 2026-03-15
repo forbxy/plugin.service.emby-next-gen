@@ -291,7 +291,7 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
         NativeMode = False
         Dynamic += "http/"
         isHttpByEmby = True
-        if 'Container' in Item:
+        if 'Container' in Item and Item['Container'].lower() != 'strm':
             Item['KodiFilename'] = f"unknown.{Item['Container']}"
         else:
             # Only execute specialized extension detection if the MediaSource container is explicitly 'strm'
@@ -305,9 +305,12 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
             
             if should_probe:
                 # Try to extract valid extension from URL or Path
-                valid_exts = {'mkv', 'iso', 'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm2ts', 'ts', 'bdmv', 'ifo', '3gp', 'rmvb', 'rm', 'vob', 'mpg', 'mpeg'}
-
+                valid_exts_videos = {'mkv', 'iso', 'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm2ts', 'ts', 'bdmv', 'ifo', '3gp', 'rmvb', 'rm', 'vob', 'mpg', 'mpeg'}
+                valid_exts_audio = valid_exts_videos.union({'mp3', 'flac', 'aac', 'wav', 'ogg', 'wma', 'm4a', 'alac', 'aiff'})
                 def extract_ext(chk_str):
+                    valid_exts = valid_exts_videos
+                    if Item.get('Type') == "Audio":
+                        valid_exts = valid_exts_audio
                     if not chk_str: return None
                     try:
                         chk_str = unquote(chk_str)

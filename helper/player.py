@@ -186,10 +186,16 @@ def PlayerCommands():
             # native (bluray) content, get actual path
             if FullPath.startswith("bluray://") and not EmbyId:
                 FullPath = unquote_plus(FullPath)
-                FullPath = unquote_plus(FullPath)
+                if "%" in FullPath: # Some paths might still be encoded
+                    FullPath = unquote_plus(FullPath)
                 FullPath = FullPath.replace("bluray://", "")
                 FullPath = FullPath.replace("udf://", "")
-                FullPath = FullPath[:FullPath.find("//")]
+                if FullPath.startswith("http://") or FullPath.startswith("https://") or FullPath.startswith("dav://") or FullPath.startswith("davs://"):
+                    index = FullPath.find("//", FullPath.find("://") + 3)
+                    if index != -1:
+                        FullPath = FullPath[:index]
+                else:
+                    FullPath = FullPath[:FullPath.find("//")]
 
                 for ServerId, EmbyServer in list(utils.EmbyServers.items()):
                     embydb = dbio.DBOpenRO(ServerId, "onAVStarted")

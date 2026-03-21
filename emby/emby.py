@@ -230,6 +230,21 @@ class EmbyServer:
                 if self.ServerData['ServerId'] not in utils.EmbyServerIds:
                     utils.EmbyServerIds.append(self.ServerData['ServerId'])
 
+                from database import dbio
+                SQLs = {}
+                dbio.DBOpenRW("video", "init_sources", SQLs)
+                if "video" in SQLs:
+                    # Addon Mode (Stream via Emby)
+                    SQLs["video"].update_source_content("/emby_addon_mode/tvshows/", "tvshows", "metadata.local")
+                    SQLs["video"].update_source_content("/emby_addon_mode/http/tvshows/", "tvshows", "metadata.local")
+                    # Native Mode (Http)
+                    SQLs["video"].update_source_content("http://127.0.0.1:57342/tvshows/", "tvshows", "metadata.local")
+                    SQLs["video"].update_source_content("http://127.0.0.1:57342/http/tvshows/", "tvshows", "metadata.local")
+                    # Native Mode (Dav)
+                    SQLs["video"].update_source_content("dav://127.0.0.1:57342/tvshows/", "tvshows", "metadata.local")
+                    SQLs["video"].update_source_content("dav://127.0.0.1:57342/http/tvshows/", "tvshows", "metadata.local")
+                    dbio.DBCloseRW("video", "init_sources", SQLs)
+
                 self.start()
 
             return

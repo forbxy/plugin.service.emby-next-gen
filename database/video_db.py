@@ -1906,3 +1906,14 @@ class VideoDatabase:
             self.cursor.execute("INSERT INTO path(idPath, strPath, strContent, strScraper, noUpdate, idParentPath) VALUES (?, ?, ?, ?, ?, ?)", (KodiPathId, Path, MediaType, None, 1, LinkId))
 
         return KodiPathId
+    def update_source_content(self, Path, Content, Scraper):
+        self.cursor.execute("SELECT idPath, strContent, strScraper FROM path WHERE strPath = ?", (Path,))
+        Data = self.cursor.fetchone()
+
+        if Data:
+            if Data[1] != Content or Data[2] != Scraper:
+                self.cursor.execute("UPDATE path SET strContent = ?, strScraper = ? WHERE idPath = ?", (Content, Scraper, Data[0]))
+        else:
+            self.cursor.execute("SELECT coalesce(max(idPath), 0) FROM path")
+            KodiPathId = self.cursor.fetchone()[0] + 1
+            self.cursor.execute("INSERT INTO path(idPath, strPath, strContent, strScraper, noUpdate) VALUES (?, ?, ?, ?, 1)", (KodiPathId, Path, Content, Scraper))

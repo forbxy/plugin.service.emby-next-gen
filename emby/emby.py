@@ -501,7 +501,7 @@ class EmbyServer:
                 xbmc.log(f"EMBY.emby.emby: Skip Emby server connection test: {Connection}", 1) # LOGINFO
                 continue
 
-            self.ServerData['ServerUrl'] = self.ServerData[Connection]
+            self.ServerData['ServerUrl'] = self.ServerData[Connection].rstrip('/')
             PublicInfo = self.API.get_publicinfo()
 
             if PublicInfo:

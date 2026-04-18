@@ -23,6 +23,7 @@ addon_name = Addon.getAddonInfo('name')
 CustomDialogParameters = (Addon.getAddonInfo('path'), "default", "1080i")
 WidgetsRefreshLock = threading.Lock()
 PlayerBusyLock = threading.Event()
+PlayerBusyLock.set()
 MappingIds = {"Trailer": "999999987", 'Season': "999999989", 'Series': "999999990", 'MusicAlbum': "999999991", 'MusicGenre': "999999992", "Studio": "999999994", "Tag": "999999993", "Genre": "999999995", "MusicArtist": "999999996"}
 MappingIdsListKeys = list(MappingIds.keys())
 EmbyTypeMapping = {"Person": "actor", "Video": "movie", "Movie": "movie", "Series": "tvshow", "Season": "season", "Episode": "episode", "Audio": "song", "MusicAlbum": "album", "MusicArtist": "artist", "Genre": "genre", "MusicGenre": "genre", "Tag": "tag" , "Studio": "studio" , "BoxSet": "set", "Folder": "folder", "MusicVideo": "musicvideo", "Playlist": "Playlist", "Trailer": "video", "PhotoAlbum": "folder", "Photo": "photo"}

@@ -250,12 +250,16 @@ def set_path_filename(Item, ServerId, MediaSource, isDynamic=False):
         Item['KodiPath'] = Item['KodiPath'].replace("\\\\", "\\")
 
     KodiPathLower = Item['KodiPath'].lower()
+    KodiHostLower = KodiPathLower.split('/')[2] if KodiPathLower.startswith(("http://", "https://")) and len(KodiPathLower.split('/')) > 2 else ""
 
-    if (KodiPathLower.startswith("http://") or KodiPathLower.startswith("https://")) and KodiPathLower.find("youtube") != -1 and KodiPathLower.find("plugin.video.youtube") == -1:
-        Item['KodiPath'] = f"plugin://plugin.video.youtube/play/?video_id={Item['KodiPath'].rsplit('=', 1)[1]}"
-        Item['KodiFilename'] = Item['KodiPath']
-        Item['KodiFullPath'] = Item['KodiPath']
-        return
+    if KodiHostLower and "youtube" in KodiHostLower and KodiPathLower.find("plugin.video.youtube") == -1:
+        YoutubeParts = Item['KodiPath'].rsplit('=', 1)
+
+        if len(YoutubeParts) == 2:
+            Item['KodiPath'] = f"plugin://plugin.video.youtube/play/?video_id={YoutubeParts[1]}"
+            Item['KodiFilename'] = Item['KodiPath']
+            Item['KodiFullPath'] = Item['KodiPath']
+            return
 
     Container = Item.get('Container', "")
 

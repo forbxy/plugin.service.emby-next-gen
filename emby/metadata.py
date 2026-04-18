@@ -49,6 +49,11 @@ def load_MetaData(Payload, isPicture, isAudio):
         ServerId = PayloadSplit[-6]
         Data = PayloadSplit[-2]
         Data = Data.split("-")
+
+        if len(Data) < 5:
+            xbmc.log(f"EMBY.hooks.webservice: Invalid video metadata {PayloadMod}", 2) # LOGERROR
+            return {}
+
         Data[4] = bytes.fromhex(Data[4]).decode('utf-8')
 
         # Extract metatdata, sperators are <>, ><, <<, :

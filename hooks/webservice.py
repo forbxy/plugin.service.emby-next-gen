@@ -613,11 +613,12 @@ def GetRequest(client, Payload, isDelayedContent, isPicture, isAudio, isVideo):
 
     # Load parameters from url request
     MetaData = metadata.load_MetaData(Payload, isPicture, isAudio)
-    MetaData['ETag'] = f'{str(uuid.uuid4()).replace("-", "")}{Payload[-5:]}'
 
     if not MetaData: # Invalid request
         client.send(sendNotFound)
         return
+
+    MetaData['ETag'] = f'{str(uuid.uuid4()).replace("-", "")}{Payload[-5:]}'
 
     if MetaData['Type'] in ("movie", "episode", "musicvideo", "tvchannel", "video"):
         playerops.PlayerId = 1

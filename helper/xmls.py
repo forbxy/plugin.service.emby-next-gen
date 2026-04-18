@@ -1,3 +1,5 @@
+import re
+
 import xbmc
 from . import utils
 
@@ -230,7 +232,7 @@ def advanced_settings():
         SectionMain += '\n    <pathsubstitution>'
         SectionMain += '\n        <substitute>'
         SectionMain += '\n            <from>/emby_addon_mode/</from>'
-        SectionMain += '\n            <to>http://127.0.0.1:57342/|</to>'
+        SectionMain += '\n            <to>http://127.0.0.1:57342/</to>'
         SectionMain += '\n        </substitute>'
         SectionMain += '\n    </pathsubstitution>'
         Changed = True
@@ -242,9 +244,9 @@ def advanced_settings():
             SectionData += '\n        </substitute>'
             SectionMain = replace_Section("pathsubstitution", SectionData, SectionMain)
             Changed = True
-        # elif '<to>http://127.0.0.1:57342/</to>' not in SectionData:
-        #     SectionMain = SectionMain.replace("<to>http://127.0.0.1:57342/</to>", "<to>http://127.0.0.1:57342/</to>")
-        #     Changed = True
+        elif 'redirect-limit' in SectionData:
+            SectionMain = re.sub(r'<to>http://127\.0\.0\.1:57342/\|redirect-limit=\d+</to>', '<to>http://127.0.0.1:57342/</to>', SectionMain)
+            Changed = True
 
     SectionData = get_Section(SectionMain, "video")
 

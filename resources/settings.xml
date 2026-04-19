@@ -1354,7 +1354,7 @@
             <group id="9" label="33472">
                 <setting id="videoBitrate" type="integer" label="30160" help="33316">
                     <level>2</level>
-                    <default>100000000</default>
+                    <default>1000000000</default>
                     <constraints>
                         <options>
                             <option label="33330">664000</option>

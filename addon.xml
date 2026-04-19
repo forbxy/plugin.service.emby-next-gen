@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone="yes"?>
-<addon id="plugin.service.emby-next-gen" name="Emby for Kodi Next Gen(VFS)" version="12.4.15.6" provider-name="quickmic+forbxy">
+<addon id="plugin.service.emby-next-gen" name="Emby for Kodi Next Gen(VFS)" version="12.4.15.7" provider-name="quickmic+forbxy">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
     </requires>

@@ -885,17 +885,22 @@ def convert_to_local(date_input, DateOnly=False, YearOnly=False):
             xbmc.log(f"Emby.helper.utils: Year out of range: {dt.year}", 2) # LOGWARNING
             return "0"
 
-        local_dt = dt.astimezone(None)
+        try:
+            local_dt = dt.astimezone(None)
+        except OSError:
+            # Windows: astimezone() fails for pre-1970 dates, use current UTC offset as approximation
+            utc_offset = datetime.now(timezone.utc).astimezone().utcoffset()
+            local_dt = (dt.replace(tzinfo=timezone.utc) + utc_offset).replace(tzinfo=timezone(utc_offset))
 
         if YearOnly:
             return local_dt.year
 
         if DateOnly:
-            return local_dt.strftime('%Y-%m-%d')
+            return f"{local_dt.year:04d}-{local_dt.month:02d}-{local_dt.day:02d}"
 
-        return local_dt.strftime('%Y-%m-%d %H:%M:%S')
+        return f"{local_dt.year:04d}-{local_dt.month:02d}-{local_dt.day:02d} {local_dt.hour:02d}:{local_dt.minute:02d}:{local_dt.second:02d}"
     except Exception as Error:
-        xbmc.log(f"EMBY.helper.utils: convert_to_local Error: {Error}", 3) # LOGERROR
+        xbmc.log(f"EMBY.helper.utils: convert_to_local Error: {Error!r} input={date_input!r}", 3) # LOGERROR
         return "0"
 
 def Translate(Id):

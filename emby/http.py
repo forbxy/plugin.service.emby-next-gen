@@ -9,6 +9,7 @@ import ssl
 import uuid
 import socket
 import xbmc
+from urllib.parse import quote
 from helper import utils, queue, artworkcache
 from database import dbio
 from hooks import websocket
@@ -494,7 +495,7 @@ class HTTP:
                     else:
                         ParamsString += f"{Query}={Param}&"
                 elif Param not in ([], None):
-                    ParamsString += f"{Query}={Param}&"
+                    ParamsString += f"{Query}={quote(str(Param), safe=',') if isinstance(Param, str) else Param}&"
 
             if ParamsString:
                 ParamsString = f"?{ParamsString[:-1]}"

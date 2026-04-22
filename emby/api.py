@@ -495,12 +495,13 @@ class API:
         if Params.get('IncludeItemTypes', "") == "MusicGenre":
             Request = "MusicGenres"
             Params['ParentId'] = str(Params['ParentId'])
+            ViewType = self.EmbyServer.Views.ViewItems.get(Params['ParentId'], (None, ""))[1]
 
-            if self.EmbyServer.Views.ViewItems[Params['ParentId']][1] == "musicvideos":
+            if ViewType == "musicvideos":
                 Params['IncludeItemTypes'] = "MusicVideo"
-            elif self.EmbyServer.Views.ViewItems[Params['ParentId']][1] in ("music", "audiobooks"):
+            elif ViewType in ("music", "audiobooks"):
                 Params['IncludeItemTypes'] = "Audio"
-            else: # mixed, playlist
+            else: # mixed, playlist, or unknown (e.g. search with parentid=0)
                 Params['IncludeItemTypes'] = "MusicVideo,Audio"
 
             Params['UserId'] = self.EmbyServer.ServerData['UserId']

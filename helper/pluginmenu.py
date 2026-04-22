@@ -1540,14 +1540,14 @@ def unify_Item(SortItems, ItemsListings, Content, ParentId, ServerId, LibraryId,
                 utils.QueryCache[SortItemContent] = {}
 
             ItemsListingsCached = ()
-            LocalCacheId = f"{CacheId}{SortItemContent}{ParentId}{ServerId}{LibraryId}"
+            LocalCacheId = CacheId if query == "Search" else f"{CacheId}{SortItemContent}{ParentId}{ServerId}{LibraryId}"
 
             for SortedItem in SortedItems:
                 ItemsListingsCached = load_ListItem(ParentId, SortedItem, ServerId, ItemsListingsCached, Content, LibraryId, ContentSupported, SortItemContent, LocalCacheId)
 
             utils.QueryCache[SortItemContent][LocalCacheId] = [True, ItemsListingsCached, Unsorted, Id, SortItemContent, ServerId, ParentId, LibraryId, Content]
 
-            if query == "Favorite": # Keep query for not content requests
+            if query in ("Favorite", "Search"): # Keep query for not content requests
                 ItemsListings = add_ListItem(ItemsListings, f"--{SortItemContent}--", f"plugin://plugin.service.emby-next-gen/?id={Id}&mode=browse&query={query}&server={ServerId}&parentid={ParentId}&content={SortItemContent}&libraryid={LibraryId}", IconMapping[SortItemContent], SortItemContent)
             else:
                 ItemsListings = add_ListItem(ItemsListings, f"--{SortItemContent}--", f"plugin://plugin.service.emby-next-gen/?id={Id}&mode=browse&query={SortItemContent}&server={ServerId}&parentid={ParentId}&content={SortItemContent}&libraryid={LibraryId}", IconMapping[SortItemContent], SortItemContent)

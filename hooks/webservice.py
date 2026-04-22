@@ -384,14 +384,14 @@ def worker_Query(WorkerNumber):  # thread by caller
                     CacheId1 = f"0Search0{ServerId}0"
                     CacheId2 = f"0Search0{ServerId}0{utils.maxnodeitems}"
 
-                    # Delete cache from previous search
-                    if "All" in utils.QueryCache:
-                        if CacheId1 in utils.QueryCache["All"]:
-                            utils.QueryCache["All"][CacheId1][0] = False
-                        elif CacheId2 in utils.QueryCache["All"]:
-                            utils.QueryCache["All"][CacheId2][0] = False
+                    # Delete cache from previous search (All and all per-type sub-caches)
+                    for CacheDict in utils.QueryCache.values():
+                        if CacheId1 in CacheDict:
+                            CacheDict[CacheId1][0] = False
+                        if CacheId2 in CacheDict:
+                            CacheDict[CacheId2][0] = False
 
-                    utils.ActivateWindow("videos", f"plugin://plugin.service.emby-next-gen/?id=0&mode=browse&query=Search&server={ServerId}&parentid=0&content=All&libraryid=0")
+                    utils.ActivateWindow("videos", f"plugin://plugin.service.emby-next-gen/?id=0&mode=browse&query=Search&server={ServerId}&parentid=0&content=All&libraryid=0", True)
 
                 if utils.DebugLog: xbmc.log(f"EMBY.hooks.webservice (DEBUG): THREAD: [ worker_Query/{WorkerNumber} ] event search", 1) # LOGDEBUG
                 continue

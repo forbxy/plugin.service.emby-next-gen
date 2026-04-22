@@ -42,7 +42,7 @@ class Tag:
 
             utils.notify_event("content_add", {"EmbyId": f"{Item['Id']}", "KodiId": f"{Item['KodiItemId']}", "KodiType": "tag"}, IncrementalSync)
 
-        common.download_SubnodeIcon(Item, self.EmbyServer.ServerData['ServerId']) # Download icon
+        # common.download_SubnodeIcon(Item, self.EmbyServer.ServerData['ServerId']) # Download icon
         return not Item['UpdateItem']
 
     def remove(self, Item, IncrementalSync):

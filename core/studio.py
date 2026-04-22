@@ -42,7 +42,7 @@ class Studio:
 
             utils.notify_event("content_add", {"EmbyId": Item['Id'], "KodiId": Item['KodiItemId'], "KodiType": "studio"}, IncrementalSync)
 
-        common.download_SubnodeIcon(Item, self.EmbyServer.ServerData['ServerId']) # Download icon
+        # common.download_SubnodeIcon(Item, self.EmbyServer.ServerData['ServerId']) # Download icon
         return not Item['UpdateItem']
 
     def remove(self, Item, IncrementalSync):

@@ -594,6 +594,9 @@ def image_overlay(ImageTag, ServerId, EmbyID, ImageType, ImageIndex, OverlayText
 
 # Download image
 def download_Icon(ItemId, ImageTag, ServerId, NodeName, Force):
+    if ImageTag == "noimage":
+        return ""
+
     ItemId = str(ItemId).replace(MappingIds['Tag'], '') # Collection as Tags (Item Id)
 
     for IconExtension in IconExtensions:
@@ -606,6 +609,10 @@ def download_Icon(ItemId, ImageTag, ServerId, NodeName, Force):
     if not Found or Force:
         delFile(FileExists)
         BinaryData, _, FileExtension = image_overlay(ImageTag, ServerId, ItemId, "Primary", 0, NodeName, False, False)
+
+        if BinaryData == noimagejpg:
+            return ""
+
         IconFile = f"{FolderEmbyTemp}{ItemId}.{FileExtension}"
         writeFile(IconFile, BinaryData)
     else:

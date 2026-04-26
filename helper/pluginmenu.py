@@ -287,7 +287,12 @@ def browse(Handle, Id, query, ParentId, Content, ServerId, LibraryId, ContentSup
         else:
             Extras.update({'PersonIds': Id, "SortBy": "SortName"})
 
-        RequestParams = (None, ('Movie', "Series", "Episode"), True, Extras, False, LibraryId)
+        if Content in ("Movie", "Series", "Episode"):
+            MediaTypes = (Content,)
+        else:
+            MediaTypes = ('Movie', "Series", "Episode")
+
+        RequestParams = (None, MediaTypes, True, Extras, False, LibraryId)
     elif query == 'Tag':
         if LibraryId == Id: # initial query
             Extras.update({"SortBy": "SortName"})
@@ -1547,7 +1552,7 @@ def unify_Item(SortItems, ItemsListings, Content, ParentId, ServerId, LibraryId,
 
             utils.QueryCache[SortItemContent][LocalCacheId] = [True, ItemsListingsCached, Unsorted, Id, SortItemContent, ServerId, ParentId, LibraryId, Content]
 
-            if query in ("Favorite", "Search"): # Keep query for not content requests
+            if query in ("Favorite", "Search", "Person"): # Keep query for not content requests
                 ItemsListings = add_ListItem(ItemsListings, f"--{SortItemContent}--", f"plugin://plugin.service.emby-next-gen/?id={Id}&mode=browse&query={query}&server={ServerId}&parentid={ParentId}&content={SortItemContent}&libraryid={LibraryId}", IconMapping[SortItemContent], SortItemContent)
             else:
                 ItemsListings = add_ListItem(ItemsListings, f"--{SortItemContent}--", f"plugin://plugin.service.emby-next-gen/?id={Id}&mode=browse&query={SortItemContent}&server={ServerId}&parentid={ParentId}&content={SortItemContent}&libraryid={LibraryId}", IconMapping[SortItemContent], SortItemContent)

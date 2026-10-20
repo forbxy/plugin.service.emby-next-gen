@@ -12,7 +12,8 @@ def get_addon_info():
 def zip_addon(addon_id, version):
     # Current directory is the root of the addon
     cwd = os.getcwd()
-    folder_name = os.path.basename(cwd)
+    # Kodi requires the addon ID as the top-level directory, regardless of checkout name.
+    folder_name = addon_id
     
     # Output filename: foldername-version.zip
     zip_name = f"{folder_name}-{version}.zip"
@@ -29,7 +30,7 @@ def zip_addon(addon_id, version):
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(cwd):
             # Exclude directories
-            dirs[:] = [d for d in dirs if d not in ['dist', '.idea', '.vscode', '__pycache__', '.git']]
+            dirs[:] = [d for d in dirs if d not in ['dist', '.idea', '.vscode', '__pycache__', '.git', '.github']]
             
             for file in files:
                 # Exclude specific files
@@ -51,6 +52,7 @@ def zip_addon(addon_id, version):
                 zipf.write(file_path, arcname)
                 
     print("Done!")
+    return zip_path
 
 if __name__ == "__main__":
     try:
@@ -58,3 +60,4 @@ if __name__ == "__main__":
         zip_addon(addon_id, version)
     except Exception as e:
         print(f"Error: {e}")
+        raise SystemExit(1)

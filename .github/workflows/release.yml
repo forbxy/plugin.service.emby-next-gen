@@ -1,0 +1,71 @@
+name: Release NextGen
+
+on:
+  push:
+    tags: ['**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextgen-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Package and publish addon
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate tag, package and verify addon
+        id: package
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          import zipfile
+          from build_package import get_addon_info, zip_addon
+
+          addon_id, version = get_addon_info()
+          tag = os.environ['GITHUB_REF_NAME']
+          if tag not in (version, f'v{version}'):
+              raise SystemExit(f'Tag {tag} does not match addon.xml version {version}')
+
+          package = Path(zip_addon(addon_id, version))
+          with zipfile.ZipFile(package) as archive:
+              if archive.testzip() is not None:
+                  raise SystemExit('Invalid ZIP archive')
+              names = archive.namelist()
+              if not names or not all(name.startswith(f'{addon_id}/') for name in names):
+                  raise SystemExit('Incorrect addon directory in ZIP')
+              for required in ('addon.xml', 'service.py', 'resources/settings.xml'):
+                  if f'{addon_id}/{required}' not in names:
+                      raise SystemExit(f'Missing addon file: {required}')
+              manifest = ET.fromstring(archive.read(f'{addon_id}/addon.xml'))
+              if manifest.get('id') != addon_id or manifest.get('version') != version:
+                  raise SystemExit('Packaged manifest does not match release')
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'path={package.as_posix()}\n')
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          PACKAGE_PATH: ${{ steps.package.outputs.path }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$PACKAGE_PATH" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$RELEASE_TAG" "$PACKAGE_PATH" \
+              --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes --title "$RELEASE_TAG"
+          fi

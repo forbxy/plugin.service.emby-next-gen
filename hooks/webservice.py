@@ -756,12 +756,33 @@ def GetRequest(client, Payload, isDelayedContent, isPicture, isAudio, isVideo):
         MetaData['SelectionIndexMediaSource'] = 0
     elif utils.AutoSelectHighestResolution: # Autoselect mediasource by highest resolution
         HighestResolution = 0
+        LargestSize = 0
+        LargestMediaSourceIndex = 0
         MetaData['SelectionIndexMediaSource'] = 0
 
         for MediaSourceIndex, MediaSource in enumerate(MetaData['MediaSources']):
-            if HighestResolution < MediaSource[1][0]['Width']:
-                HighestResolution = MediaSource[1][0]['Width']
-                MetaData['SelectionIndexMediaSource'] = MediaSourceIndex
+            for VideoStream in MediaSource[1]:
+                try:
+                    Width = int(VideoStream.get('Width') or 0)
+                except (TypeError, ValueError, OverflowError):
+                    continue
+
+                if HighestResolution < Width:
+                    HighestResolution = Width
+                    MetaData['SelectionIndexMediaSource'] = MediaSourceIndex
+
+            try:
+                Size = int(MediaSource[0].get('Size') or 0)
+            except (TypeError, ValueError, OverflowError):
+                Size = 0
+
+            if LargestSize < Size:
+                LargestSize = Size
+                LargestMediaSourceIndex = MediaSourceIndex
+
+        if not HighestResolution:
+            MetaData['SelectionIndexMediaSource'] = LargestMediaSourceIndex
+            xbmc.log(f"EMBY.hooks.webservice: No resolution available, selected media source {LargestMediaSourceIndex + 1} by size ({LargestSize} bytes; 0 means first source)", 1)
     else: # Manual select mediasource
         if add_DelayedContent(MetaData, client):
             return

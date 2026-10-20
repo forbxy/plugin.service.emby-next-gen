@@ -678,7 +678,7 @@
             <group id="5" label="30516">
                 <setting label="33692" id="AutoSelectHighestResolution" type="boolean" help="33693">
                     <level>2</level>
-                    <default>false</default>
+                    <default>true</default>
                     <control type="toggle"/>
                 </setting>
                 <setting id="resumeJumpBack" type="integer" label="30521" help="33320">

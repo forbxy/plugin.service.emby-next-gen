@@ -37,3 +37,20 @@ For official downloads, support, updates, and discussions, please visit the offi
 通过HEAD请求strm文件内的url拿取最终下载地址并获取格式。
 
 > ⚠️ 这会导致同步变慢，短时大量获取下载地址也可能被云服务商风控，谨慎使用。
+
+## 自动发布
+
+先将 `addon.xml` 的版本号更新并提交，再推送相同版本的 tag，例如：
+
+```bash
+git tag v12.4.15.11
+git push origin v12.4.15.11
+```
+
+也支持不带 `v` 的 tag。GitHub Actions 会校验版本、打包，并将 ZIP 上传到对应的 GitHub Release；重新运行时会替换同名附件。tag 与 `addon.xml` 版本不一致时，发布会失败。
+
+本地打包仍使用 `python build_package.py`，输出到 `dist/`。压缩包顶层目录固定为插件 ID，GitHub 工作流不会打入安装包。
+
+## License
+
+许可证为 GNU GPL v2，与 `addon.xml` 中的声明一致。
